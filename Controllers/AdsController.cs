@@ -5,35 +5,35 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using checkpoint3;
-using checkpoint3.Models;
+using Checkpoint3.Data;
+using Checkpoint3.Models;
 
-namespace checkpoint3.Controllers
+namespace Checkpoint3.Controllers
 {
-    public class AdsEditController : Controller
+    public class AdsController : Controller
     {
-        private readonly AdContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public AdsEditController(AdContext context)
+        public AdsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: AdsEdit
+        // GET: Ads
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Ad.ToListAsync());
+            return View(await _context.Ads.ToListAsync());
         }
 
-        // GET: AdsEdit/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Ads/Details/5
+        public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var ad = await _context.Ad
+            var ad = await _context.Ads
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ad == null)
             {
@@ -43,15 +43,38 @@ namespace checkpoint3.Controllers
             return View(ad);
         }
 
-        // GET: AdsEdit/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Ads/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Ads/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Date")] Ad ad)
+        {
+            if (ModelState.IsValid)
+            {
+                ad.Id = Guid.NewGuid();
+                _context.Add(ad);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(ad);
+        }
+
+        // GET: Ads/Edit/5
+        public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var ad = await _context.Ad.FindAsync(id);
+            var ad = await _context.Ads.FindAsync(id);
             if (ad == null)
             {
                 return NotFound();
@@ -59,12 +82,12 @@ namespace checkpoint3.Controllers
             return View(ad);
         }
 
-        // POST: AdsEdit/Edit/5
+        // POST: Ads/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description")] Ad ad)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Description,Date")] Ad ad)
         {
             if (id != ad.Id)
             {
@@ -94,15 +117,15 @@ namespace checkpoint3.Controllers
             return View(ad);
         }
 
-        // GET: AdsEdit/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Ads/Delete/5
+        public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var ad = await _context.Ad
+            var ad = await _context.Ads
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ad == null)
             {
@@ -112,20 +135,20 @@ namespace checkpoint3.Controllers
             return View(ad);
         }
 
-        // POST: AdsEdit/Delete/5
+        // POST: Ads/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var ad = await _context.Ad.FindAsync(id);
-            _context.Ad.Remove(ad);
+            var ad = await _context.Ads.FindAsync(id);
+            _context.Ads.Remove(ad);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AdExists(int id)
+        private bool AdExists(Guid id)
         {
-            return _context.Ad.Any(e => e.Id == id);
+            return _context.Ads.Any(e => e.Id == id);
         }
     }
 }
