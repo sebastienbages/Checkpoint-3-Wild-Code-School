@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Checkpoint3.Data;
 using Checkpoint3.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Checkpoint3.Controllers
 {
     public class AdsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public AdsController(ApplicationDbContext context)
+        public AdsController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Ads
@@ -59,6 +62,9 @@ namespace Checkpoint3.Controllers
             if (ModelState.IsValid)
             {
                 ad.Id = Guid.NewGuid();
+                string userId = _userManager.GetUserId(HttpContext.User);
+                User user = await _userManager.FindByIdAsync(userId);
+                ad.User = user;
                 _context.Add(ad);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
